@@ -2,6 +2,12 @@
 /dist
 /node_modules
 
+# Environmental variables
+.env
+
+# Mongo db data
+/data
+
 # Logs
 logs
 *.log

@@ -52,10 +52,37 @@ describe('UsersController', () => {
         expect(await controller.getUsers()).toEqual(
           expect.arrayContaining(user)
         )
-      })
-    } )
-  })
+      });
+    });
 
+    describe('getUserById', () => {
+      it('should return a user given a valid id', async () => {
+        expect(await controller.getUserById(1)).toEqual(user[0]);
+      });
+    });
 
+    describe('it should create a user', () => {
+      it('should return a message if user was created', async () => {
+        expect(await controller.createUser({
+          name: 'John',
+          email: 'leb@owski.money',
+          password: 'asdf',
+          avatar: 'bunny'
+        })).toBe('User created');
+      });
+    });
+
+    describe('updateUser', () => {
+      it('should update a User given valid id', async () => {
+        expect(await controller.updateUser(1)).toEqual(user[0]);
+      });
+    });
+
+    describe('deleteUserById', () => {
+      it('should delete a user given valid id', async () => {
+        expect(await controller.deleteUserById(1)).toBe('User deleted');
+      });
+    });
+  });
 });
 
