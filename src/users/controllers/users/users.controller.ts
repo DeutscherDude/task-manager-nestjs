@@ -1,5 +1,7 @@
-import { Body, Controller, Delete, Get, Inject, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ObjectId } from 'mongoose';
 import { tokens } from '../../../utils/serviceTokens';
+import { UserCredentialsDto } from '../../dtos/user-credentials.dto';
 import { CreateUserDto } from '../../dtos/user.dto';
 import { UsersService } from '../../services/users/users.service';
 
@@ -14,16 +16,23 @@ export class UsersController {
     }
 
     @Get('search/:id')
-    async getUserById(@Param('id') id: number) {
-        return await this.usersService.getUserById(id);
+    async getUserById(@Param('id') id: string) {
+        return await this.usersService.findUserById(id);
+    }
+
+    @Post('login')
+    async login(@Body() credentials: UserCredentialsDto) {
+        return await this.usersService.login(credentials.email, credentials.password);
     }
 
     @Post('signup')
+    @UsePipes(ValidationPipe)
     async createUser(@Body() createUserDto: CreateUserDto) {
         return await this.usersService.createUser(createUserDto);
     }
 
     @Put('create/:id')
+    @UsePipes(ValidationPipe)
     async updateUser(@Param('id') id: number) {
         return await this.usersService.updateUser(id);
     }

@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { tokens } from '../../../utils/serviceTokens';
 import { UsersController } from './users.controller';
-import * as request from 'supertest';
 
 describe('UsersController', () => {
   let controller: UsersController;
