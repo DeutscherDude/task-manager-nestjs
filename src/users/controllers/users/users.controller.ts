@@ -10,7 +10,7 @@ export class UsersController {
 
     @Get()
     async getUsers() {
-        return await this.usersService.getUsers();
+        return await this.usersService.findAll();
     }
 
     @Get('search/:id')

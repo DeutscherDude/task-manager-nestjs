@@ -1,57 +1,30 @@
 import { Injectable } from '@nestjs/common';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { CreateUserDto } from '../../dtos/user.dto';
-import { User } from '../../Schemas/user.schema';
+import { User, UserDocument } from '../../Schemas/user.schema';
 
 @Injectable()
 export class UsersService {
-    constructor() {}
+    constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {}
 
-    private users: User[] = [
-        {
-            id: 1,
-            name: 'John',
-            email: 'boy@boy.com',
-            password: 'abcdefg',
-            avatar: 'rabbit'
-        },
-        {
-            id: 2,
-            name: 'Brittany',
-            email: 'girl@girl.com',
-            password: 'barbie',
-            avatar: 'rabbit'
-        },
-        {
-            id: 3,
-            name: 'Joseph',
-            email: 'joe@star.jojo',
-            password: 'oraora',
-            avatar: 'ZaWarudo'
-        }
-    ]
-    
-    async getUsers() {
-        return this.users;
+    async findAll(): Promise<User[]> {
+        return this.userModel.find().exec();
     }
 
-    async getUserById(id: number) {
-        return this.users.find(user => user.id === id);
+    async getUserById(id: number): Promise<User> {
+        return this.userModel.findOne({id: id});
     }
 
-    async createUser(createUserDto: CreateUserDto) {
-        this.users.push({...createUserDto, id: this.users.length + 1});
-        return 'User created';
+    async createUser(createUserDto: CreateUserDto): Promise<User> {
+        return this.userModel.create(createUserDto);
     }
 
-    async updateUser(id: number) {
-        const user = this.users.find(user => user.id === id);
-        user.name = 'Updated';
-        return user;
+    async updateUser(id: number): Promise<User> {
+        return this.userModel.findOneAndUpdate({id: id}, {$set: {name: 'Updated name'}});
     }
 
-    async deleteUserById(id: number) {
-        this.users = this.users.filter(user => user.id !== id);
-        return 'User deleted';
+    async deleteUserById(id: number): Promise<User> {
+        return this.userModel.findOneAndDelete({id: id});        
     }
-
 }
