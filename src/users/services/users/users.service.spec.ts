@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
@@ -7,6 +8,12 @@ import { UsersService } from './users.service';
 describe('UsersService', () => {
   let service: UsersService;
   let model: Model<User>;
+  const user = {
+    name: 'John',
+    email: 'boy@cuck.cum',
+    password: 'zxcvbn',
+    avatar: 'rabbit',
+  };
 
   class dummyUser extends User {
     constructor() {
@@ -96,20 +103,49 @@ describe('UsersService', () => {
         expect(user).toBeDefined();
         expect(user).toBe(dummyUsersArray[0]);
       });
+
+      it('should throw an Error if id was invalid', async () => {
+        jest.spyOn(model, 'findOne').mockReturnValueOnce(null);
+        try {
+          await service.findUserById('invalid id');
+        } catch (err) {
+          expect(err).toBeDefined();
+          expect(err).toBeInstanceOf(HttpException);
+          expect(err.status).toBe(HttpStatus.BAD_REQUEST);
+        }
+      });
+
+      it('should throw an Error if user was not found', async () => {
+        jest.spyOn(model, 'findOne').mockReturnValueOnce(null);
+        try {
+          const user = await service.findUserById('62c6f411ae263423c849119e');
+        } catch (err) {
+          expect(err).toBeDefined();
+          expect(err).toBeInstanceOf(HttpException);
+          expect(err.message).toBe('User not found');
+          expect(err.status).toBe(HttpStatus.NOT_FOUND);
+        }
+      });
     });
 
     describe('createUser', () => {
       it('should return a success message given a valid user', async () => {
-        const user = {
-          name: 'John',
-          email: 'boy@cuck.cum',
-          password: 'zxcvbn',
-          avatar: 'rabbit',
-        };
         jest.spyOn(model, 'create').mockReturnValueOnce(user as any);
         const message = await service.createUser(user);
         expect(message).toBeDefined();
         expect(message).toBe(user);
+      });
+
+      it('should throw an error if user already exists', async () => {
+        jest.spyOn(model, 'findOne').mockReturnValueOnce(1 as any);
+        try {
+          await service.createUser(user);
+        } catch (err) {
+          expect(err).toBeDefined();
+          expect(err).toBeInstanceOf(HttpException);
+          expect(err.message).toBe('User already exists');
+          expect(err.status).toBe(HttpStatus.CONFLICT);
+        }
       });
     });
 
@@ -127,11 +163,51 @@ describe('UsersService', () => {
 
     describe('deleteUser', () => {
       it('should delete a user given valid id', async () => {
-        jest.spyOn(model, 'findOneAndDelete').mockReturnValueOnce('User deleted' as any)
+        jest
+          .spyOn(model, 'findOneAndDelete')
+          .mockReturnValueOnce('User deleted' as any);
         const message = await service.deleteUserById(1);
         expect(message).toBeDefined();
         expect(message).toBe('User deleted');
       });
+    });
+
+    describe('login', () => {
+      it('should return a user given valid credentials', async () => {
+        jest
+          .spyOn(model, 'findOne')
+          .mockReturnValueOnce(dummyUsersArray[0] as any);
+        const reply = await service.login(
+          dummyUsersArray[0].email,
+          dummyUsersArray[0].password,
+        );
+        expect(reply).toBeDefined();
+        expect(reply).toBe(dummyUsersArray[0]);
+      });
+
+      it('should throw an error if user was not found', async () => {
+        jest.spyOn(model, 'findOne').mockReturnValueOnce(null);
+        try{
+          await service.login(dummyUsersArray[0].email, dummyUsersArray[0].password);
+        } catch (err) {
+          expect(err).toBeDefined();
+          expect(err).toBeInstanceOf(HttpException);
+          expect(err.message).toBe('User not found');
+          expect(err.status).toBe(HttpStatus.NOT_FOUND);
+        }
+      });
+
+      it('should throw an error if password is invalid', async () => {
+        jest.spyOn(model, 'findOne').mockReturnValueOnce(dummyUsersArray[0] as any);
+        try{
+          await service.login(dummyUsersArray[0].email, 'invalid password');
+        } catch (err) {
+          expect(err).toBeDefined();
+          expect(err).toBeInstanceOf(HttpException);
+          expect(err.message).toBe('Invalid password');
+          expect(err.status).toBe(HttpStatus.UNAUTHORIZED);
+        }
+      })
     });
   });
 });
