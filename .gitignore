@@ -5,6 +5,9 @@
 # Environmental variables
 .env
 
+# To-do file
+to-do.md
+
 # Mongo db data
 /data
 
