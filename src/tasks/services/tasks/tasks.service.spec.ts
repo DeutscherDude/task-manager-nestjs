@@ -14,7 +14,14 @@ describe('TasksService', () => {
         TasksService,
         {
           provide: getModelToken(Task.name),
-          useValue: {},
+          useValue: {
+            find: jest.fn(),
+            findOne: jest.fn(),
+            create: jest.fn(),
+            update: jest.fn(),
+            delete: jest.fn(),
+            exec: jest.fn()
+          },
         },
       ],
     }).compile();
@@ -33,6 +40,9 @@ describe('TasksService', () => {
   describe('TasksService', () => {
     describe('getTasks', () => {
       it('should return an array of tasks', async () => {
+        jest.spyOn(model, 'find').mockReturnValueOnce({
+          exec: jest.fn().mockResolvedValue([{} as any]),
+        } as any);
         expect(await service.getTasks()).toEqual(expect.arrayContaining([{}]));
       });
     });

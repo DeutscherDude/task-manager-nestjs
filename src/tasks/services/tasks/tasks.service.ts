@@ -8,18 +8,28 @@ export class TasksService {
   constructor(@InjectModel(Task.name) private readonly taskModel: Model<TaskDocument>) {}
 
   async getTasks() {
-    return [{}];
+    return this.taskModel.find().exec();
   }
 
-  async getTaskByTitle(title: string) {}
+  async getTaskByTitle(title: string) {
+    return this.taskModel.findOne({ title: title }).exec();
+  }
 
-  async getTaskByDescription(description: string) {}
+  async getTaskByDescription(description: string) {
+    return this.taskModel.findOne({ description: description }).exec();
+  }
 
-  async getTaskByCompleted(completed: boolean) {}
+  async getTaskByCompleted(completed: boolean): Promise<Task[]> {
+    return this.taskModel.find({ completed: completed }).exec();
+  }
 
-  async getTaskByUserId(user_id: string) {}
+  async getTaskByUserId(user_id: string): Promise<Task[]>  {
+    return this.taskModel.find({ user_id: user_id }).exec();
+  }
 
-  async createTask() {}
+  async createTask(task: Task) {
+    return (await this.taskModel.create(task)).save();
+  }
 
   async updateTask() {}
 

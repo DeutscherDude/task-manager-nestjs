@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { tokens } from '../../../utils/serviceTokens';
+import { Task } from '../../Schemas/task.schema';
+import { mockTask, mockTasks } from '../../mocks/tasksMock';
 import { TasksService } from '../../services/tasks/tasks.service';
 import { TasksController } from './tasks.controller';
 
@@ -69,8 +71,8 @@ describe('TasksController', () => {
       it('should return a task given existing completed', async () => {
         jest
           .spyOn(service, 'getTaskByCompleted')
-          .mockResolvedValueOnce({} as any);
-        expect(await controller.getTaskByCompleted(true)).toEqual({});
+          .mockResolvedValueOnce(mockTasks as any);
+        expect(await controller.getTaskByCompleted(true)).toEqual(mockTasks);
       });
     });
 
@@ -84,9 +86,8 @@ describe('TasksController', () => {
     describe('createTask', () => {
       it('should return a task given existing userId', async () => {
         jest.spyOn(service, 'createTask').mockResolvedValueOnce({} as any);
-        expect(await controller.createTask()).toEqual({});
+        expect(await controller.createTask(mockTask as Task)).toEqual({});
       });
-    })
-
+    });
   });
 });
